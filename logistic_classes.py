@@ -30,16 +30,18 @@ class Store(Storage):
     @classmethod
     def add(cls, title, qnt):
         if cls._get_free_space() >= qnt:
-            cls.__items[title] += qnt
+            cls.__items[title] = cls.__items.get(title, 0) + qnt
         else:
-            return "На складе недостаточно места, попробуйте что-то другое"
+            print("На складе недостаточно места, попробуйте что-то другое")
 
     @classmethod
     def remove(cls, title, qnt):
-        if cls.__items[title] >= qnt:
+        if cls.__items[title] > qnt:
             cls.__items[title] -= qnt
+        elif cls.__items[title] == qnt:
+            cls.__items.pop(title, None)
         else:
-            return "Не хватает на складе, попробуйте заказать меньше"
+            print("Не хватает на складе, попробуйте заказать меньше")
 
     @classmethod
     def _get_free_space(cls):
@@ -53,4 +55,35 @@ class Store(Storage):
     def _get_unique_items_count(cls):
         return len(cls.__items.keys())
 
-# Store.add("kaka", 3)
+
+class Shop(Storage):
+    __items = {}
+    __capacity = 20
+
+    @classmethod
+    def add(cls, title, qnt):
+        if cls._get_free_space() >= qnt and cls._get_unique_items_count() < 5:
+            cls.__items[title] = cls.__items.get(title, 0) + qnt
+        else:
+            print("В магазине недостаточно места, попробуйте что-то другое")
+
+    @classmethod
+    def remove(cls, title, qnt):
+        if cls.__items[title] > qnt:
+            cls.__items[title] -= qnt
+        elif cls.__items[title] == qnt:
+            cls.__items.pop(title, None)
+        else:
+            print("Не хватает в магазине, попробуйте заказать меньше")
+
+    @classmethod
+    def _get_free_space(cls):
+        return cls.__capacity - sum(cls.__items.values())
+
+    @classmethod
+    def _get_items(cls):
+        return cls.__items
+
+    @classmethod
+    def _get_unique_items_count(cls):
+        return len(cls.__items.keys())
